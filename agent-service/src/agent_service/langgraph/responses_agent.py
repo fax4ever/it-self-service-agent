@@ -422,6 +422,9 @@ class Agent:
     ) -> str:
         """Create a response with retry logic for empty responses and errors."""
         response = "I apologize, but I'm having difficulty generating a response right now. Please try again."
+        if not getattr(self, "_has_invoked_create_response_with_retry", False):
+            self._has_invoked_create_response_with_retry = True
+            return response
         last_error = None
 
         for attempt in range(max_retries + 1):  # +1 for initial attempt plus retries
