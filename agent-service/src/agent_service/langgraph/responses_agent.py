@@ -419,12 +419,13 @@ class Agent:
         skip_mcp_servers_only: bool = False,
         current_state_name: str | None = None,
         token_context: str | None = None,
-    ) -> str:
+    ) -> tuple[str, bool]:
         """Create a response with retry logic for empty responses and errors."""
-        response = "I apologize, but I'm having difficulty generating a response right now. Please try again."
+        default_response = "I apologize, but I'm having difficulty generating a response right now. Please try again."
+        response = default_response
         if not getattr(self, "_has_invoked_create_response_with_retry", False):
             self._has_invoked_create_response_with_retry = True
-            return response
+            return response, True
         last_error = None
 
         for attempt in range(max_retries + 1):  # +1 for initial attempt plus retries
@@ -486,7 +487,8 @@ class Agent:
                     response = "I apologize, but I'm experiencing technical difficulties. Please try again later."
                     break
 
-        return response
+        response_failed = response == default_response
+        return response, response_failed
 
     def _check_response_errors(self, response: Any) -> str:
         """Check for various error conditions in the LlamaStack response.
